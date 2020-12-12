@@ -1,9 +1,10 @@
 import React, { Fragment } from "react";
 import { withRouter } from "react-router-dom";
 import Joi from "joi-browser";
-import { getGenres } from "../services/fakeGenreService";
+import { getGenres } from "../services/genreService";
 import Form from "./Form";
-import { getMovie, saveMovie } from "../services/fakeMovieService";
+import { getMovie, saveMovie } from "../services/movieService";
+import { toast } from 'react-toastify';
 class MovieForm extends Form {
   state = {
     data: {
@@ -30,13 +31,26 @@ class MovieForm extends Form {
       .required()
       .label("Daily Rental Rate"),
   };
-  componentDidMount() {
-    this.setState({ genres: getGenres() });
-    const movieId = this.props.match.params.id;
-    if (movieId === "new") return;
-    const movie = getMovie(movieId);
-    if (!movie) return this.props.history.replace("./page404");
-    this.setState({ data: this.mapToViewMode(movie) });
+  async populateGenre(){
+    const {data}= await getGenres();
+    this.setState({ genres: data });
+  }
+  async populateMovie(){
+    try{
+      const movieId = this.props.match.params.id;
+      if (movieId === "new") return;
+      const {data:movie} = await getMovie(movieId);
+      this.setState({ data: this.mapToViewMode(movie) });
+    }catch(ex){
+      if (ex.response && ex.response.status === 404) {
+        toast.error("No such movie available right now.");
+        this.props.history.replace("/page404");
+      }
+    }
+  }
+  async componentDidMount() {
+   await this.populateGenre();
+   await this.populateMovie();
   }
   mapToViewMode = (movie) => {
     return {
@@ -47,8 +61,8 @@ class MovieForm extends Form {
       dailyRentalRate: movie.dailyRentalRate,
     };
   };
-  doSubmit = () => {
-    saveMovie(this.state.data);
+  doSubmit = async () => {
+    await saveMovie(this.state.data);
     this.props.history.push("/movies");
   };
 

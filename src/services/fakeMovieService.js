@@ -92,10 +92,6 @@ let movies = [
   },
 ];
 
-export const getMovies = () => {
-  return movies;
-};
-
 export const deleteMovie = (id) => {
   movies = movies.filter((movie) => movie._id !== id);
 };
@@ -116,9 +112,4 @@ export function saveMovie(movie) {
     dailyRentalRate: movie.dailyRentalRate,
   };
   movies.push(item);
-}
-export function getMoviesByGenre(movies, selectedGenre) {
-  if (selectedGenre && selectedGenre._id)
-    return movies.filter((movie) => movie.genre._id === selectedGenre._id);
-  return movies;
 }

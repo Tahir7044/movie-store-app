@@ -1,7 +1,8 @@
 import React, { Component } from "react";
+import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-import { getMovies, getMoviesByGenre } from "../services/fakeMovieService";
-import { getGenres } from "../services/fakeGenreService";
+import { getMovies, deleteMovie } from "../services/movieService";
+import { getGenres } from "../services/genreService";
 import _ from "lodash";
 import Pagination from "./Pagination";
 import MoviesTable from "./MoviesTable";
@@ -17,10 +18,17 @@ export default class Movies extends Component {
     searchQuery: "",
     sortColumn: { path: "title", order: "asc" },
   };
-  componentDidMount() {
-    const genres = [{ _id: "", name: "All movies" }, ...getGenres()];
-    this.setState({ movies: getMovies(), genres });
+  async componentDidMount() {
+    const { data } = await getGenres();
+    const genres = [{ _id: "", name: "All movies" }, ...data];
+    const { data: movies } = await getMovies();
+    this.setState({ movies, genres });
   }
+  getMoviesByGenre = (movies, selectedGenre) => {
+    if (selectedGenre && selectedGenre._id)
+      return movies.filter((movie) => movie.genre._id === selectedGenre._id);
+    return movies;
+  };
   handleGenreSelect = (genre) => {
     this.setState({ selectedGenre: genre, searchQuery: "", currentPage: 1 });
   };
@@ -38,7 +46,7 @@ export default class Movies extends Component {
       filteredMovies = allMovies.filter((m) =>
         m.title.toLowerCase().startsWith(searchQuery.toLocaleLowerCase())
       );
-    else filteredMovies = getMoviesByGenre(allMovies, selectedGenre);
+    else filteredMovies = this.getMoviesByGenre(allMovies, selectedGenre);
     const { length: count } = filteredMovies;
     const sortedMovies = _.orderBy(
       filteredMovies,
@@ -54,10 +62,19 @@ export default class Movies extends Component {
     movies[index].liked = !movies[index].liked;
     this.setState({ movies });
   };
-  handleDelete = (movie) => {
+  handleDelete = async (movie) => {
+    const originalMovies = this.state.movies;
     this.setState({
-      movies: this.state.movies.filter((m) => m._id !== movie._id),
+      movies: originalMovies.filter((m) => m._id !== movie._id),
     });
+    try {
+      await deleteMovie(movie._id);
+    } catch (ex) {
+      if (ex.response && ex.response.status === 404) {
+        toast.error("this movie has already been deleted");
+      }
+      this.setState({ movies: originalMovies });
+    }
   };
   handlePageChange = (currentPage) => {
     this.setState({ currentPage });

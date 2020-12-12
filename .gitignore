@@ -21,3 +21,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+movie_backend/.DS_Store
+movie_backend/node_modules/
+movie_backend/logfile.log
