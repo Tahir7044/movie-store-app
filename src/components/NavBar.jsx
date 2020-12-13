@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Link, NavLink } from "react-router-dom";
-export default function NavBar() {
+export default function NavBar(props) {
+  const { user } = props;
   return (
     <nav className='navbar navbar-expand-lg navbar-light bg-light'>
       <Link className='navbar-brand' to='/'>
@@ -27,12 +28,26 @@ export default function NavBar() {
           <NavLink className='nav-item nav-link' to='/rentals'>
             Rentals
           </NavLink>
-          <NavLink className='nav-item nav-link' to='/login'>
-            Login
-          </NavLink>
-          <NavLink className='nav-item nav-link' to='/signup'>
-            Register
-          </NavLink>
+          {!user && (
+            <Fragment>
+              <NavLink className='nav-item nav-link' to='/login'>
+                Login
+              </NavLink>
+              <NavLink className='nav-item nav-link' to='/signup'>
+                Register
+              </NavLink>
+            </Fragment>
+          )}
+          {user && (
+            <Fragment>
+              <NavLink className='nav-item nav-link' to='/profile'>
+                {user.name}
+              </NavLink>
+              <NavLink className='nav-item nav-link' to='/logout'>
+                Logout
+              </NavLink>
+            </Fragment>
+          )}
         </div>
       </div>
     </nav>
