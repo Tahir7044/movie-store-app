@@ -13,6 +13,12 @@ function logout() {
   localStorage.removeItem("token");
 }
 
+function getJwt() {
+  return localStorage.getItem("token");
+}
+
+http.setJwt(getJwt());
+
 function getCurrentUser() {
   const jwt = localStorage.getItem("token");
   try {

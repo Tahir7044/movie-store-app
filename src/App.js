@@ -14,6 +14,7 @@ import Logout from "./components/Logout";
 import Profile from "./components/Profile";
 import auth from "./services/authService";
 import "./App.css";
+import ProtectedRoute from "./components/ProtectedRoute";
 import "react-toastify/dist/ReactToastify.css";
 
 class App extends Component {
@@ -28,9 +29,20 @@ class App extends Component {
         <NavBar user={this.state.user} />
         <main className='container'>
           <Switch>
-            <Route path='/movie/:id' exact component={MovieForm} />
-            <Route path='/movies' exact component={Movies} />
-            <Route path='/login' exact render={() => <LoginForm />} />
+            <ProtectedRoute path='/movies/:id' component={MovieForm} />
+            <Route
+              path='/movies'
+              exact
+              render={(props) => <Movies {...props} user={this.state.user} />}
+            />
+            <Route
+              path='/login'
+              exact
+              render={() => {
+                if (auth.getCurrentUser()) return <Redirect to='/movies' />;
+                return <LoginForm />;
+              }}
+            />
             <Route path='/signup' exact render={() => <Register />} />
             <Route path='/logout' exact render={() => <Logout />} />
             <Route path='/rentals' exact component={Rental} />

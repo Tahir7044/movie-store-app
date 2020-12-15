@@ -74,6 +74,7 @@ export default class Movies extends Component {
         toast.error("this movie has already been deleted");
       }
       this.setState({ movies: originalMovies });
+      toast.error("you are not authorized to delete the movie");
     }
   };
   handlePageChange = (currentPage) => {
@@ -98,6 +99,7 @@ export default class Movies extends Component {
       sortColumn,
       searchQuery,
     } = this.state;
+    const { user } = this.props;
     const { count, movies } = this.getPageMovies();
     return (
       <div className='row'>
@@ -109,12 +111,14 @@ export default class Movies extends Component {
           />
         </div>
         <div className='col'>
-          <Link
-            to='/movie/new'
-            style={{ marginBottom: 20 }}
-            className='btn btn-primary'>
-            Add Movie
-          </Link>
+          {user && (
+            <Link
+              to='/movies/new'
+              style={{ marginBottom: 20 }}
+              className='btn btn-primary'>
+              Add Movie
+            </Link>
+          )}
           <Search value={searchQuery} onChange={this.handleSearch} />
           <MoviesTable
             count={count}

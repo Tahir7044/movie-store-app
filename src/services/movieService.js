@@ -18,6 +18,7 @@ export function saveMovie(movie) {
   if (movie._id) {
     const body = { ...movie };
     delete body._id;
-    http.put(getMovieUrl(movie._id), body);
-  } else http.post(apiEndPoint, movie);
+    return http.put(getMovieUrl(movie._id), body);
+  }
+  return http.post(apiEndPoint, movie);
 }

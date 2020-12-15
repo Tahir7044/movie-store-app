@@ -62,8 +62,14 @@ class MovieForm extends Form {
     };
   };
   doSubmit = async () => {
-    await saveMovie(this.state.data);
-    this.props.history.push("/movies");
+    try {      
+      await saveMovie(this.state.data);
+      this.props.history.push("/movies");
+    } catch (ex) {
+      if(ex.response&&ex.response.status===400){
+        toast.error("you are not authorized to change")
+      }
+    }
   };
 
   render() {
